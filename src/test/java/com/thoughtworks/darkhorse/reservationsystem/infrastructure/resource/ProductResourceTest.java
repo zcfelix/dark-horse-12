@@ -124,4 +124,21 @@ class ProductResourceTest extends AbstractResourceTest {
                 .body("data.contractId", is(notPayedContract.getId()))
                 .body("path", notNullValue());
     }
+
+    @Test
+    void should_create_product_failed_when_create_product_with_non_existed_contract() {
+        final CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", 1d, 1);
+
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .body(createProductCommand)
+                .post(CREATE_PRODUCT_URL, "non_existed_id")
+                .then()
+                .statusCode(404)
+                .body("code", is("CONTRACT_NOT_EXIST"))
+                .body("timestamp", notNullValue())
+                .body("data.contractId", is("non_existed_id"))
+                .body("path", notNullValue());
+    }
 }

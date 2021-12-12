@@ -70,4 +70,16 @@ class ProductAppServiceTest {
 
         assertEquals(ErrorCode.DEPOSIT_NOT_PAYED, exception.getErrorCode());
     }
+
+    @Test
+    void should_throw_exception_when_create_product_with_non_existed_contract() {
+        when(contractRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", 10.0d, 20);
+
+        ContractNotExistException exception = assertThrows(ContractNotExistException.class,
+                () -> productAppService.createProduct("contractId", createProductCommand));
+
+        assertEquals(ErrorCode.CONTRACT_NOT_EXIST, exception.getErrorCode());
+    }
 }

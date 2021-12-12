@@ -1,5 +1,6 @@
 package com.thoughtworks.darkhorse.reservationsystem.infrastructure;
 
+import com.thoughtworks.darkhorse.reservationsystem.appservice.ContractNotExistException;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ErrorDetail;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.AppException;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,17 @@ public class ResourceAdvice {
     @ExceptionHandler(value = AppException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDetail handAppException(AppException e, HttpServletRequest request) {
+        return ErrorDetail.builder()
+                .code(e.getErrorCode())
+                .path(request.getRequestURL().toString())
+                .timestamp(Instant.now())
+                .data(e.getData())
+                .build();
+    }
+
+    @ExceptionHandler(value = ContractNotExistException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorDetail handNotExistException(ContractNotExistException e, HttpServletRequest request) {
         return ErrorDetail.builder()
                 .code(e.getErrorCode())
                 .path(request.getRequestURL().toString())
