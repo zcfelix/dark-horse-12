@@ -21,6 +21,7 @@ class ProductResourceTest extends AbstractResourceTest {
     private ContractRepository contractRepository;
 
     private Contract contract;
+    private Contract notPayedContract;
 
     @BeforeEach
     void setUp() {
@@ -29,6 +30,12 @@ class ProductResourceTest extends AbstractResourceTest {
                 .serviceChargeRate(100)
                 .build();
         contractRepository.save(contract);
+
+        notPayedContract = Contract.builder()
+                .depositPayed(false)
+                .serviceChargeRate(100)
+                .build();
+        contractRepository.save(notPayedContract);
     }
 
     @Test
@@ -98,6 +105,23 @@ class ProductResourceTest extends AbstractResourceTest {
                 .body("status", is(400))
                 .body("timestamp", notNullValue())
                 .body("error", is("Bad Request"))
+                .body("path", notNullValue());
+    }
+
+    @Test
+    void should_create_product_failed_before_deposit_paying() {
+        final CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", 1d, 1);
+
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .body(createProductCommand)
+                .post(CREATE_PRODUCT_URL, notPayedContract.getId())
+                .then()
+                .statusCode(400)
+                .body("code", is("DEPOSIT_NOT_PAYED"))
+                .body("timestamp", notNullValue())
+                .body("data.contractId", is(notPayedContract.getId()))
                 .body("path", notNullValue());
     }
 }

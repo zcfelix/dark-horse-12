@@ -2,6 +2,7 @@ package com.thoughtworks.darkhorse.reservationsystem.appservice;
 
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Contract;
+import com.thoughtworks.darkhorse.reservationsystem.domainmodel.ErrorCode;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Product;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.ContractRepository;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.ProductRepository;
@@ -53,5 +54,20 @@ class ProductAppServiceTest {
         assertEquals(10.0d, representation.getPrice());
         assertEquals(20, representation.getPrepareMinutes());
         assertEquals(10.0d - stubContract.getServiceChargeRate() / 10000.0 * 10.0d, representation.getEarning());
+    }
+
+    @Test
+    void should_throw_exception_when_create_product_before_deposit_paying() {
+        final Instant now = Instant.now();
+        final Contract stubContract = new Contract("contractId", false, 100, now, now);
+
+        when(contractRepository.findById(anyString())).thenReturn(Optional.of(stubContract));
+
+        CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", 10.0d, 20);
+
+        DepositNotPayedException exception = assertThrows(DepositNotPayedException.class,
+                () -> productAppService.createProduct("contractId", createProductCommand));
+
+        assertEquals(ErrorCode.DEPOSIT_NOT_PAYED, exception.getErrorCode());
     }
 }
