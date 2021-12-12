@@ -73,4 +73,20 @@ class ProductRepositoryTest {
         assertEquals(5, page.getContent().size());
         assertTrue(page.getContent().stream().anyMatch(product -> product.getName().equals("noodle-1")));
     }
+
+    @Test
+    void should_list_products_by_page_success_when_products_total_size_over_page_size() {
+        List<Product> products = IntStream.rangeClosed(1, 11).mapToObj(i -> Product.builder()
+                .name("noodle-" + i)
+                .description("delicious")
+                .price(i * 100)
+                .prepareMinutes(i)
+                .build()).collect(toList());
+        productRepository.saveAllAndFlush(products);
+
+        Page<Product> page = productRepository.findAll(PageRequest.of(0, 10));
+        assertEquals(11, page.getTotalElements());
+        assertEquals(10, page.getContent().size());
+        assertTrue(page.getContent().stream().anyMatch(product -> product.getName().equals("noodle-1")));
+    }
 }
