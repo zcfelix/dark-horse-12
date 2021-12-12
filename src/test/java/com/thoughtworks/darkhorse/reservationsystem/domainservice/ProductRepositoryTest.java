@@ -89,4 +89,11 @@ class ProductRepositoryTest {
         assertEquals(10, page.getContent().size());
         assertTrue(page.getContent().stream().anyMatch(product -> product.getName().equals("noodle-1")));
     }
+
+    @Test
+    void should_list_empty_when_there_are_no_products() {
+        Page<Product> page = productRepository.findAll(PageRequest.of(0, 10));
+        assertEquals(0, page.getTotalElements());
+        assertEquals(0, page.getContent().size());
+    }
 }
