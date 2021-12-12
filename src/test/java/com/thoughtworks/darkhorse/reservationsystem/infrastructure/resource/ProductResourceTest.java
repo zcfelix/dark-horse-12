@@ -2,23 +2,34 @@ package com.thoughtworks.darkhorse.reservationsystem.infrastructure.resource;
 
 import com.thoughtworks.darkhorse.reservationsystem.appservice.CreateProductCommand;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Contract;
+import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Product;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.ContractRepository;
+import com.thoughtworks.darkhorse.reservationsystem.domainservice.ProductRepository;
 import com.thoughtworks.darkhorse.reservationsystem.support.AbstractResourceTest;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static io.restassured.RestAssured.given;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.*;
 
 
 class ProductResourceTest extends AbstractResourceTest {
 
     private static final String CREATE_PRODUCT_URL = "/contracts/{id}/products";
+    private static final String LIST_PRODUCTS_URL = "/products";
 
     @Autowired
     private ContractRepository contractRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     private Contract contract;
     private Contract notPayedContract;
@@ -36,6 +47,12 @@ class ProductResourceTest extends AbstractResourceTest {
                 .serviceChargeRate(100)
                 .build();
         contractRepository.save(notPayedContract);
+    }
+
+    @AfterEach
+    void tearDown() {
+        contractRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
@@ -140,5 +157,26 @@ class ProductResourceTest extends AbstractResourceTest {
                 .body("timestamp", notNullValue())
                 .body("data.contractId", is("non_existed_id"))
                 .body("path", notNullValue());
+    }
+
+    @Test
+    void should_list_products_by_page_success() {
+        List<Product> products = IntStream.rangeClosed(1, 5).mapToObj(i -> Product.builder()
+                .name("noodle-" + i)
+                .description("delicious")
+                .price(i * 100)
+                .prepareMinutes(i)
+                .build()).collect(toList());
+        productRepository.saveAllAndFlush(products);
+
+        given()
+                .when()
+                .queryParam("pageIndex", 0)
+                .queryParam("pageSize", 10)
+                .get(LIST_PRODUCTS_URL)
+                .then()
+                .statusCode(200)
+                .body("contents.size()", is(5))
+                .body("totalSize", is(5));
     }
 }

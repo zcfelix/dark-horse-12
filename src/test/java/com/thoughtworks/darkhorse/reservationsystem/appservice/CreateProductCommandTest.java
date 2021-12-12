@@ -6,9 +6,7 @@ import org.junit.jupiter.api.Test;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,9 +44,5 @@ class CreateProductCommandTest {
         CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", -1d, -1);
         Set<ConstraintViolation<CreateProductCommand>> violations = validator.validate(createProductCommand);
         assertEquals(2, violations.size());
-
-        List<String> errorMessages = violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toList());
-        assertEquals("product price should not be negative", errorMessages.get(0));
-        assertEquals("product prepare time should not be negative", errorMessages.get(1));
     }
 }
