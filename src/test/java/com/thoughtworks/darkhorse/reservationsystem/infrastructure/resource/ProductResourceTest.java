@@ -83,4 +83,21 @@ class ProductResourceTest extends AbstractResourceTest {
                 .body("error", is("Bad Request"))
                 .body("path", notNullValue());
     }
+
+    @Test
+    void should_create_product_failed_with_negative_price_and_negative_prepare_time() {
+        final CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", -1d, -1);
+
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .body(createProductCommand)
+                .post(CREATE_PRODUCT_URL, contract.getId())
+                .then()
+                .statusCode(400)
+                .body("status", is(400))
+                .body("timestamp", notNullValue())
+                .body("error", is("Bad Request"))
+                .body("path", notNullValue());
+    }
 }
