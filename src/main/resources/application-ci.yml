@@ -5,10 +5,24 @@ spring:
   mvc:
     throw-exception-if-no-handler-found: true
   datasource:
-    url: jdbc:h2:mem:reservation;MODE=MYSQL
+    url: jdbc:h2:mem:usrmgmt;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL;INIT=CREATE SCHEMA IF NOT EXISTS DUMMY;
     username: sa
-    password:
+    password: sa
     driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default-schema: reservation
+        dialect: org.hibernate.dialect.H2Dialect
   sql:
     init:
       platform: mysql
+  flyway:
+    user: sa
+    password: sa
+    url: jdbc:h2:mem:usrmgmt;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL;INIT=CREATE SCHEMA IF NOT EXISTS DUMMY;
+    locations: classpath:db/migration/h2
+    enabled: true
+    baseline-version: 0
