@@ -31,4 +31,19 @@ class ProductRepositoryTest {
         assertNotNull(saved.getId());
         assertEquals(product.getName(), saved.getName());
     }
+
+    @Test
+    void should_save_product_with_price_10_01() {
+        double priceInCent = 10.01 * 100;
+        Integer price = (int) priceInCent;
+        Product product = Product.builder()
+                .name("noodle")
+                .description("delicious")
+                .price(price)
+                .prepareMinutes(20)
+                .build();
+        Product saved = productRepository.save(product);
+        assertNotNull(saved.getId());
+        assertEquals(product.getName(), saved.getName());
+    }
 }
