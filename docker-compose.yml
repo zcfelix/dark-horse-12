@@ -1,0 +1,16 @@
+version: '3.0'
+
+services:
+  db:
+    container_name: db
+    image: mysql:8.0.19
+    ports:
+      - 3306:3306
+    volumes:
+      - /Users/felix/mysql/reservation-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=reservation
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']

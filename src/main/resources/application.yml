@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: reservation-system
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    properties:
+      hibernates:
+        jdbc:
+          time_zone: UTC
+  output:
+    ansi:
+      enabled: always
+  data:
+    rest:
+      default-page-size: 20
+    web:
+      pageable:
+        one-indexed-parameters: true
