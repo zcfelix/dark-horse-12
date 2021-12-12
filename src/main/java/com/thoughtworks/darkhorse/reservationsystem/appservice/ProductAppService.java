@@ -44,7 +44,7 @@ public class ProductAppService {
     }
 
     public Pair<List<ProductSimpleRepresentation>, Long> listProducts(Integer pageIndex, Integer pageSize) {
-        if (pageIndex < 0 || pageSize < 0) {
+        if (pageIndex < 0 || pageSize <= 0) {
             return Pair.of(ImmutableList.of(), 0L);
         }
         Page<Product> page = productRepository
