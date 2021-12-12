@@ -1,5 +1,6 @@
 package com.thoughtworks.darkhorse.reservationsystem.appservice;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductSimpleRepresentation;
@@ -43,6 +44,9 @@ public class ProductAppService {
     }
 
     public Pair<List<ProductSimpleRepresentation>, Long> listProducts(Integer pageIndex, Integer pageSize) {
+        if (pageIndex < 0 || pageSize < 0) {
+            return Pair.of(ImmutableList.of(), 0L);
+        }
         Page<Product> page = productRepository
                 .findAll(PageRequest.of(pageIndex, pageSize));
         return Pair.of(
