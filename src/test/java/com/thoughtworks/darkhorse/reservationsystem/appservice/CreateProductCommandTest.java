@@ -28,4 +28,14 @@ class CreateProductCommandTest {
         assertEquals("product price should not be negative",
                 violations.stream().map(ConstraintViolation::getMessage).findFirst().get());
     }
+
+    @Test
+    void should_throw_error_message_when_create_product_with_negative_prepare_minutes() {
+        CreateProductCommand createProductCommand = new CreateProductCommand("noodle", "delicious", 1d, -1);
+        Set<ConstraintViolation<CreateProductCommand>> violations = validator.validate(createProductCommand);
+        assertEquals(1, violations.size());
+
+        assertEquals("product prepare time should not be negative",
+                violations.stream().map(ConstraintViolation::getMessage).findFirst().get());
+    }
 }
