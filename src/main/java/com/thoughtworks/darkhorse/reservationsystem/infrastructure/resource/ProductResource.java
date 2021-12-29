@@ -1,25 +1,23 @@
 package com.thoughtworks.darkhorse.reservationsystem.infrastructure.resource;
 
-import com.thoughtworks.darkhorse.reservationsystem.appservice.CreateProductCommand;
+import com.thoughtworks.darkhorse.reservationsystem.appservice.command.CreateProductCommand;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.ProductAppService;
+import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.PageRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductSimpleRepresentation;
-import com.thoughtworks.darkhorse.reservationsystem.infrastructure.PageResponse;
-import org.flywaydb.core.internal.util.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 public class ProductResource {
 
     private final ProductAppService productAppService;
 
-    @Autowired
+    @Inject
     public ProductResource(ProductAppService productAppService) {
         this.productAppService = productAppService;
     }
@@ -32,10 +30,10 @@ public class ProductResource {
     }
 
     @GetMapping(path = "/products")
-    public ResponseEntity<PageResponse<ProductSimpleRepresentation>> listProducts(
+    public ResponseEntity<PageRepresentation<ProductSimpleRepresentation>> listProducts(
             @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
-        Pair<List<ProductSimpleRepresentation>, Long> pair = productAppService.listProducts(pageIndex, pageSize);
-        return ResponseEntity.status(HttpStatus.OK).body(new PageResponse<>(pair.getLeft(), pair.getRight()));
+        PageRepresentation<ProductSimpleRepresentation> pageRepresentation = productAppService.listProducts(pageIndex, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(pageRepresentation);
     }
 }

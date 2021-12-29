@@ -1,13 +1,16 @@
 package com.thoughtworks.darkhorse.reservationsystem.appservice;
 
+import com.thoughtworks.darkhorse.reservationsystem.appservice.command.CreateProductCommand;
+import com.thoughtworks.darkhorse.reservationsystem.appservice.exception.ContractNotExistException;
+import com.thoughtworks.darkhorse.reservationsystem.appservice.exception.DepositNotPayedException;
+import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.PageRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ProductSimpleRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Contract;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.ErrorCode;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Product;
-import com.thoughtworks.darkhorse.reservationsystem.domainservice.ContractRepository;
-import com.thoughtworks.darkhorse.reservationsystem.domainservice.ProductRepository;
-import org.flywaydb.core.internal.util.Pair;
+import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.ContractRepository;
+import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,10 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -90,26 +93,26 @@ class ProductAppServiceTest {
 
     @Test
     void should_list_empty_list_when_list_products_with_negative_page_index() {
-        Pair<List<ProductSimpleRepresentation>, Long> pair = productAppService.listProducts(-1, 10);
-        assertEquals(0, pair.getLeft().size());
-        assertEquals(0L, pair.getRight());
-        verify(productRepository, times(0)).findAll();
+        PageRepresentation<ProductSimpleRepresentation> page = productAppService.listProducts(-1, 10);
+        assertEquals(0, page.getContents().size());
+        assertEquals(0L, page.getTotalSize());
+        verify(productRepository, times(0)).findAll(-1, 10);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 0})
     void should_list_empty_list_when_list_products_with_zero_or_negative_page_size(int pageSize) {
-        Pair<List<ProductSimpleRepresentation>, Long> pair = productAppService.listProducts(0, pageSize);
-        assertEquals(0, pair.getLeft().size());
-        assertEquals(0L, pair.getRight());
-        verify(productRepository, times(0)).findAll();
+        PageRepresentation<ProductSimpleRepresentation> page = productAppService.listProducts(0, pageSize);
+        assertEquals(0, page.getContents().size());
+        assertEquals(0L, page.getTotalSize());
+        verify(productRepository, times(0)).findAll(0, pageSize);
     }
 
     @Test
     void should_list_empty_list_when_list_products_with_negative_page_index_and_negative_page_size() {
-        Pair<List<ProductSimpleRepresentation>, Long> pair = productAppService.listProducts(-1, -1);
-        assertEquals(0, pair.getLeft().size());
-        assertEquals(0L, pair.getRight());
-        verify(productRepository, times(0)).findAll();
+        PageRepresentation<ProductSimpleRepresentation> page = productAppService.listProducts(-1, -1);
+        assertEquals(0, page.getContents().size());
+        assertEquals(0L, page.getTotalSize());
+        verify(productRepository, times(0)).findAll(-1, -1);
     }
 }

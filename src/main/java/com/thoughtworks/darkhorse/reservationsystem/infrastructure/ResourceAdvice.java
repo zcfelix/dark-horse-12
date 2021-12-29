@@ -1,6 +1,6 @@
 package com.thoughtworks.darkhorse.reservationsystem.infrastructure;
 
-import com.thoughtworks.darkhorse.reservationsystem.appservice.ContractNotExistException;
+import com.thoughtworks.darkhorse.reservationsystem.appservice.exception.ContractNotExistException;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.ErrorDetail;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.AppException;
 import org.springframework.http.HttpStatus;

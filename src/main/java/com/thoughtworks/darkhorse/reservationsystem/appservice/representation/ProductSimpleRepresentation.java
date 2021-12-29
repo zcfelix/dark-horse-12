@@ -1,6 +1,5 @@
 package com.thoughtworks.darkhorse.reservationsystem.appservice.representation;
 
-import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Contract;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

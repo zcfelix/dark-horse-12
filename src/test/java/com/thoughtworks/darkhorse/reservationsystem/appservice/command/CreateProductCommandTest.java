@@ -1,4 +1,4 @@
-package com.thoughtworks.darkhorse.reservationsystem.appservice;
+package com.thoughtworks.darkhorse.reservationsystem.appservice.command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

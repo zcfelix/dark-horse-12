@@ -1,4 +1,4 @@
-package com.thoughtworks.darkhorse.reservationsystem.appservice;
+package com.thoughtworks.darkhorse.reservationsystem.appservice.exception;
 
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.AppException;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.ErrorCode;

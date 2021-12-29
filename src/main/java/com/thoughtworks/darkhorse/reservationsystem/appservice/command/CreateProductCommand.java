@@ -1,4 +1,4 @@
-package com.thoughtworks.darkhorse.reservationsystem.appservice;
+package com.thoughtworks.darkhorse.reservationsystem.appservice.command;
 
 
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Product;

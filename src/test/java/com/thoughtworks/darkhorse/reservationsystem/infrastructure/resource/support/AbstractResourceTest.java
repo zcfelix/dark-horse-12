@@ -1,4 +1,4 @@
-package com.thoughtworks.darkhorse.reservationsystem.support;
+package com.thoughtworks.darkhorse.reservationsystem.infrastructure.resource.support;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,29 +1,28 @@
-package com.thoughtworks.darkhorse.reservationsystem.domainservice;
+package com.thoughtworks.darkhorse.reservationsystem.infrastructure.repositoryimpl;
 
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.Product;
+import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.Page;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
 @ActiveProfiles("ci")
 @ExtendWith(SpringExtension.class)
-class ProductRepositoryTest {
+class ProductRepositoryImplTest {
 
-    @Autowired
-    private ProductRepository productRepository;
+    @Inject
+    private ProductRepositoryImpl productRepository;
 
     @AfterEach
     void tearDown() {
@@ -68,10 +67,10 @@ class ProductRepositoryTest {
                 .build()).collect(toList());
         productRepository.saveAllAndFlush(products);
 
-        Page<Product> page = productRepository.findAll(PageRequest.of(0, 10));
-        assertEquals(5, page.getTotalElements());
-        assertEquals(5, page.getContent().size());
-        assertTrue(page.getContent().stream().anyMatch(product -> product.getName().equals("noodle-1")));
+        Page<Product> page = productRepository.findAll(0, 10);
+        assertEquals(5, page.getElements().size());
+        assertEquals(5, page.getTotalSize());
+        assertTrue(page.getElements().stream().anyMatch(product -> product.getName().equals("noodle-1")));
     }
 
     @Test
@@ -84,16 +83,16 @@ class ProductRepositoryTest {
                 .build()).collect(toList());
         productRepository.saveAllAndFlush(products);
 
-        Page<Product> page = productRepository.findAll(PageRequest.of(0, 10));
-        assertEquals(11, page.getTotalElements());
-        assertEquals(10, page.getContent().size());
-        assertTrue(page.getContent().stream().anyMatch(product -> product.getName().equals("noodle-1")));
+        Page<Product> page = productRepository.findAll(0, 10);
+        assertEquals(11, page.getTotalSize());
+        assertEquals(10, page.getElements().size());
+        assertTrue(page.getElements().stream().anyMatch(product -> product.getName().equals("noodle-1")));
     }
 
     @Test
     void should_list_empty_when_there_are_no_products() {
-        Page<Product> page = productRepository.findAll(PageRequest.of(0, 10));
-        assertEquals(0, page.getTotalElements());
-        assertEquals(0, page.getContent().size());
+        Page<Product> page = productRepository.findAll(0, 10);
+        assertEquals(0, page.getTotalSize());
+        assertEquals(0, page.getElements().size());
     }
 }
