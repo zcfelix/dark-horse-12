@@ -42,18 +42,6 @@ public class ProductEntity {
     @Generated(GenerationTime.ALWAYS)
     private Instant updatedAt;
 
-    public static Product toDomainObject(ProductEntity entity) {
-        return Product.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .price(entity.getPrice())
-                .prepareMinutes(entity.getPrepareMinutes())
-                .cratedAt(entity.getCratedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-
     public static ProductEntity from(Product product) {
         return ProductEntity.builder()
                 .id(product.getId())
@@ -63,6 +51,18 @@ public class ProductEntity {
                 .prepareMinutes(product.getPrepareMinutes())
                 .cratedAt(product.getCratedAt())
                 .updatedAt(product.getUpdatedAt())
+                .build();
+    }
+
+    public Product toDomainObject() {
+        return Product.builder()
+                .id(this.getId())
+                .name(this.getName())
+                .description(this.getDescription())
+                .price(this.getPrice())
+                .prepareMinutes(this.getPrepareMinutes())
+                .cratedAt(this.getCratedAt())
+                .updatedAt(this.getUpdatedAt())
                 .build();
     }
 }

@@ -49,13 +49,13 @@ public class ContractEntity {
                 .build();
     }
 
-    public static Contract toDomainObject(ContractEntity entity) {
+    public Contract toDomainObject() {
         return Contract.builder()
-                .id(entity.getId())
-                .depositPayed(entity.getDepositPayed())
-                .serviceChargeRate(entity.getServiceChargeRate())
-                .cratedAt(entity.getCratedAt())
-                .cratedAt(entity.getUpdatedAt())
+                .id(this.getId())
+                .depositPayed(this.getDepositPayed())
+                .serviceChargeRate(this.getServiceChargeRate())
+                .cratedAt(this.getCratedAt())
+                .cratedAt(this.getUpdatedAt())
                 .build();
     }
 }

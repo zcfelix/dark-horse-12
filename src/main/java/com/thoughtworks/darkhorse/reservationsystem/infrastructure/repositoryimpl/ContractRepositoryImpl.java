@@ -21,7 +21,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     @Override
     public Contract save(Contract contract) {
-        return ContractEntity.toDomainObject(entityRepository.save(ContractEntity.from(contract)));
+        return entityRepository.save(ContractEntity.from(contract)).toDomainObject();
     }
 
     @Override

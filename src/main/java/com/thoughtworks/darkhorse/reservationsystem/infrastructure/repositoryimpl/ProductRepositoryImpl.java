@@ -25,7 +25,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Product save(Product product) {
-        return ProductEntity.toDomainObject(entityRepository.save(ProductEntity.from(product)));
+        return entityRepository.save(ProductEntity.from(product)).toDomainObject();
     }
 
     @Override

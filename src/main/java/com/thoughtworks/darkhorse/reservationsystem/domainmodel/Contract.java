@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 import java.time.Instant;
 
 @Getter
@@ -12,6 +13,8 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class Contract {
+
+    public static final BigInteger DEPOSIT_AMOUNT = BigInteger.valueOf(30000);
 
     private String id;
 
