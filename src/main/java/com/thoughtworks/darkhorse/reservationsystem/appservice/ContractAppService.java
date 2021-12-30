@@ -33,7 +33,7 @@ public class ContractAppService {
         }
 
         Transaction transaction = contractService.createDepositPaymentTransaction(paymentType);
-        DepositPayment saved = depositPaymentRepository.save(new DepositPayment(contractId, transaction));
+        DepositPayment saved = depositPaymentRepository.save(DepositPayment.create(contractId, transaction));
         return DepositPaymentRequestRepresentation.from(saved);
     }
 }

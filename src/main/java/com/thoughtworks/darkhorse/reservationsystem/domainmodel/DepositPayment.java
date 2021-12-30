@@ -25,11 +25,14 @@ public class DepositPayment {
 
     private Boolean paid = false;
 
-    public DepositPayment(String contractId, Transaction transaction) {
-        this.contractId = contractId;
-        this.transactionId = transaction.getId();
-        this.amount = transaction.getAmount();
-        this.createdAt = transaction.getCreatedAt();
-        this.expiredAt = transaction.getExpiredAt();
+    public static DepositPayment create(String contractId, Transaction transaction) {
+        return DepositPayment.builder()
+                .contractId(contractId)
+                .transactionId(transaction.getId())
+                .amount(transaction.getAmount())
+                .createdAt(transaction.getCreatedAt())
+                .expiredAt(transaction.getExpiredAt())
+                .paid(false)
+                .build();
     }
 }
