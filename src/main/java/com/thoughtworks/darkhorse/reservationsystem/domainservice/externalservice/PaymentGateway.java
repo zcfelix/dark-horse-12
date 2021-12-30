@@ -6,4 +6,6 @@ import java.math.BigInteger;
 
 public interface PaymentGateway {
     Transaction createUnionPayTransaction(BigInteger amount);
+
+    Transaction createBankTransferTransaction(BigInteger depositAmount);
 }

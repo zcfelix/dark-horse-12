@@ -6,6 +6,7 @@ import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.De
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.*;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.externalservice.CreateTransactionTimeoutException;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.externalservice.PaymentGateway;
+import com.thoughtworks.darkhorse.reservationsystem.domainservice.externalservice.UnsupportedDepositPaymentTypeException;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.ContractRepository;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.DepositPaymentRepository;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,8 @@ class ContractAppServiceTest {
             return passed;
         });
 
-        DepositPaymentRequestRepresentation representation = contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY);
+        DepositPaymentRequestRepresentation representation = contractAppService.createDepositPaymentRequest(
+                "contractId", PaymentType.UNION_PAY.toString());
 
         assertEquals("/contracts/contractId/deposit-payments/paymentId", representation.getUri());
         assertEquals(Contract.DEPOSIT_AMOUNT.doubleValue(), representation.getAmount());
@@ -74,9 +76,9 @@ class ContractAppServiceTest {
         doThrow(new CreateTransactionTimeoutException(ErrorCode.CREATE_TRANSACTION_TIME_OUT, ImmutableMap.of()))
                 .when(paymentGateway).createUnionPayTransaction(any(BigInteger.class));
 
-        assertThrows(CreateTransactionTimeoutException.class,
-                () -> contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY));
-
+        CreateTransactionTimeoutException exception = assertThrows(CreateTransactionTimeoutException.class,
+                () -> contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY.toString()));
+        assertEquals(ErrorCode.CREATE_TRANSACTION_TIME_OUT, exception.getErrorCode());
         verify(depositPaymentRepository, times(0)).save(any(DepositPayment.class));
     }
 
@@ -85,8 +87,20 @@ class ContractAppServiceTest {
         when(contractRepository.findById(anyString())).thenReturn(Optional.empty());
 
         ContractNotExistException exception = assertThrows(ContractNotExistException.class,
-                () -> contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY));
-
+                () -> contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY.toString()));
         assertEquals(ErrorCode.CONTRACT_NOT_EXIST, exception.getErrorCode());
+        verify(depositPaymentRepository, times(0)).save(any(DepositPayment.class));
+    }
+
+    @Test
+    void should_throw_exception_when_create_payment_request_with_unsupported_payment_type() {
+        final Instant now = Instant.now();
+        final Contract stubContract = new Contract("contractId", false, 100, now, now);
+        when(contractRepository.findById(anyString())).thenReturn(Optional.of(stubContract));
+
+        UnsupportedDepositPaymentTypeException exception = assertThrows(UnsupportedDepositPaymentTypeException.class,
+                () -> contractAppService.createDepositPaymentRequest("contractId", "UnsupportedType"));
+        assertEquals(ErrorCode.UNSUPPORTED_DEPOSIT_PAYMENT_TYPE, exception.getErrorCode());
+        verify(depositPaymentRepository, times(0)).save(any(DepositPayment.class));
     }
 }

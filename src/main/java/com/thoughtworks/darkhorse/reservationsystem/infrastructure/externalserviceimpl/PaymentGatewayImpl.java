@@ -23,17 +23,27 @@ public class PaymentGatewayImpl implements PaymentGateway {
     private static final Long TIME_OUT_LIMIT = 3L;
 
     private final UnionPaymentService unionPaymentService;
+    private final BankTransferService bankTransferService;
 
     @Autowired
-    public PaymentGatewayImpl(UnionPaymentService unionPaymentService) {
+    public PaymentGatewayImpl(UnionPaymentService unionPaymentService, BankTransferService bankTransferService) {
         this.unionPaymentService = unionPaymentService;
+        this.bankTransferService = bankTransferService;
     }
 
     @Override
     public Transaction createUnionPayTransaction(BigInteger amount) {
-        CompletableFuture<ResponseEntity<Transaction>> future = unionPaymentService.createTransaction(amount);
+        return getTransaction(unionPaymentService.createTransaction(amount));
+    }
+
+    @Override
+    public Transaction createBankTransferTransaction(BigInteger amount) {
+        return getTransaction(bankTransferService.createTransaction(amount));
+    }
+
+    private Transaction getTransaction(CompletableFuture<ResponseEntity<Transaction>> transaction) {
         try {
-            ResponseEntity<Transaction> entity = future.get(TIME_OUT_LIMIT, TimeUnit.SECONDS);
+            ResponseEntity<Transaction> entity = transaction.get(TIME_OUT_LIMIT, TimeUnit.SECONDS);
             if (entity.getStatusCode().equals(HttpStatus.CREATED)) {
                 return entity.getBody();
             } else {
