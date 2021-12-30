@@ -4,10 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.exception.ContractNotExistException;
 import com.thoughtworks.darkhorse.reservationsystem.appservice.representation.DepositPaymentRequestRepresentation;
 import com.thoughtworks.darkhorse.reservationsystem.domainmodel.*;
+import com.thoughtworks.darkhorse.reservationsystem.domainservice.ContractService;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.externalservice.CreateTransactionTimeoutException;
-import com.thoughtworks.darkhorse.reservationsystem.domainservice.externalservice.PaymentGateway;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.externalservice.UnsupportedDepositPaymentTypeException;
-import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.ContractRepository;
 import com.thoughtworks.darkhorse.reservationsystem.domainservice.repository.DepositPaymentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigInteger;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -28,12 +26,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ContractAppServiceTest {
-
     @Mock
-    private ContractRepository contractRepository;
-
-    @Mock
-    private PaymentGateway paymentGateway;
+    private ContractService contractService;
 
     @Mock
     private DepositPaymentRepository depositPaymentRepository;
@@ -45,13 +39,13 @@ class ContractAppServiceTest {
     void should_create_deposit_payment_request_success() {
         final Instant now = Instant.now();
         final Contract stubContract = new Contract("contractId", false, 100, now, now);
-        when(contractRepository.findById(anyString())).thenReturn(Optional.of(stubContract));
+        when(contractService.findContract(anyString())).thenReturn(Optional.of(stubContract));
 
         final Transaction stubTransaction = new Transaction("transactionId",
                 Contract.DEPOSIT_AMOUNT,
                 now.plus(5, ChronoUnit.MINUTES),
                 now.plus(10, ChronoUnit.MINUTES));
-        when(paymentGateway.createUnionPayTransaction(any(BigInteger.class))).thenReturn(stubTransaction);
+        when(contractService.createDepositPaymentTransaction(any(String.class))).thenReturn(stubTransaction);
 
         when(depositPaymentRepository.save(any(DepositPayment.class))).then(args -> {
             DepositPayment passed = args.getArgument(0, DepositPayment.class);
@@ -72,9 +66,10 @@ class ContractAppServiceTest {
     void should_throw_exception_when_payment_request_time_out() {
         final Instant now = Instant.now();
         final Contract stubContract = new Contract("contractId", false, 100, now, now);
-        when(contractRepository.findById(anyString())).thenReturn(Optional.of(stubContract));
+        when(contractService.findContract(anyString())).thenReturn(Optional.of(stubContract));
+
         doThrow(new CreateTransactionTimeoutException(ErrorCode.CREATE_TRANSACTION_TIME_OUT, ImmutableMap.of()))
-                .when(paymentGateway).createUnionPayTransaction(any(BigInteger.class));
+                .when(contractService).createDepositPaymentTransaction(any(String.class));
 
         CreateTransactionTimeoutException exception = assertThrows(CreateTransactionTimeoutException.class,
                 () -> contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY.toString()));
@@ -84,7 +79,7 @@ class ContractAppServiceTest {
 
     @Test
     void should_throw_exception_when_create_payment_request_with_non_existed_contract() {
-        when(contractRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(contractService.findContract(anyString())).thenReturn(Optional.empty());
 
         ContractNotExistException exception = assertThrows(ContractNotExistException.class,
                 () -> contractAppService.createDepositPaymentRequest("contractId", PaymentType.UNION_PAY.toString()));
@@ -96,10 +91,13 @@ class ContractAppServiceTest {
     void should_throw_exception_when_create_payment_request_with_unsupported_payment_type() {
         final Instant now = Instant.now();
         final Contract stubContract = new Contract("contractId", false, 100, now, now);
-        when(contractRepository.findById(anyString())).thenReturn(Optional.of(stubContract));
+        when(contractService.findContract(anyString())).thenReturn(Optional.of(stubContract));
+
+        doThrow(new UnsupportedDepositPaymentTypeException(ErrorCode.UNSUPPORTED_DEPOSIT_PAYMENT_TYPE, ImmutableMap.of()))
+                .when(contractService).createDepositPaymentTransaction(any(String.class));
 
         UnsupportedDepositPaymentTypeException exception = assertThrows(UnsupportedDepositPaymentTypeException.class,
-                () -> contractAppService.createDepositPaymentRequest("contractId", "UnsupportedType"));
+                () -> contractAppService.createDepositPaymentRequest("contractId", "Alipay"));
         assertEquals(ErrorCode.UNSUPPORTED_DEPOSIT_PAYMENT_TYPE, exception.getErrorCode());
         verify(depositPaymentRepository, times(0)).save(any(DepositPayment.class));
     }
